@@ -320,6 +320,9 @@ export async function serveContractedAgent(options = {}) {
   const inheritedListener = options.listener ?? inheritedSystemdListener(options.environment ?? process.env, options.processId ?? process.pid);
   const port = inheritedListener ? null : options.port ?? boundedInteger("--port", "8080", 1, 65535);
   const host = inheritedListener ? null : options.host ?? value("--host", "127.0.0.1");
+  if (host !== null && !["127.0.0.1", "localhost", "::1"].includes(host)) {
+    throw new Error("public A2A listeners are forbidden: carry A2A inside the actor's ActivityPub CloudEvents membrane");
+  }
   const configuredBaseUrl = options.baseUrl ?? value("--base-url", process.env.BASE_URL);
   if (inheritedListener && !configuredBaseUrl) {
     throw new Error("an inherited listener requires an explicit public --base-url or BASE_URL");
