@@ -1,0 +1,8 @@
+#lang rmn/v2
+(predicate "a2a-durable-task-custody-v1"
+  (base "TransparentGzipTaskProjection")
+  (base "OversizedTaskAsVerifiedBucketObjectKnowledge")
+  (base "ContentDerivedUuidAndFullSha256")
+  (base "NonterminalTaskRemainsNonterminalAcrossProviderRestart")
+  (base "CustomerMessageRemainsAvailableForExactSemanticReplay")
+  (base "NoDurableBearerCapability"))

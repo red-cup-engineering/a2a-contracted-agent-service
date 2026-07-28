@@ -1,0 +1,12 @@
+#lang rmn/v2
+(predicate "serves-contracted-rmn-agent"
+  (base "A2A-1.0-Message-With-Canonical-RMN-CBOR")
+  (base "A2A-1.0-Task-With-Provider-Wall-Time-Receipt-Or-Protocol-Refusal")
+  (base "Interrupted-Task-Retains-Customer-Intent-And-Replays-The-Same-Semantic-Operation")
+  (base "Fresh-Replay-Message-Binds-The-Stable-Task-And-Prior-Message")
+  (base "A2A-Cancel-Ends-The-Provider-Execution-Group")
+  (base "Execution-Continues-Until-Completion-Customer-Cancellation-Or-Resource-Pressure-Refusal")
+  (base "No-Host-Session-Deadline-Or-Byte-Ceiling")
+  (base "Exactly-One-Colony-Supplied-A2A-Listener-Or-One-Process-Bound-Listener")
+  (base "Inherited-Listener-Requires-Explicit-Public-Base-URL")
+  (base "Inherited-Listener-Does-Not-Allocate-Or-Rebind-A-Colony-Port"))

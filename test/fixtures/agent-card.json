@@ -1,0 +1,75 @@
+{
+  "name": "RMN echo conformance agent",
+  "description": "Returns the canonical RMN CBOR bytes supplied to the contracted executor.",
+  "supportedInterfaces": [
+    {
+      "url": "${BASE_URL}/a2a/jsonrpc",
+      "protocolBinding": "JSONRPC",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    },
+    {
+      "url": "${BASE_URL}/a2a/rest",
+      "protocolBinding": "HTTP+JSON",
+      "tenant": "",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "url": "https://emsenn.net/",
+    "organization": "A2A Services Section"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [
+      {
+        "uri": "ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M",
+        "description": "Sovereign recursive circuit interface",
+        "required": true,
+        "params": {
+          "profile": "org.emsenn.rmn.sovereign-circuit-interface.v1",
+          "account": "eip155:31337:0x39b06799d1b27733b7a4e4751ffe92c61a498484",
+          "authority": "ni:///sha-256;_LQu9hMwa0cCyAm6ZCxygyRyXEW3orQEvGRLTFCUIWU",
+          "custody": "ni:///sha-256;geCUaP3bBxCne6cRI2AYxCchIQ0h-WEvpCs4GKH3MAI",
+          "territory": "ni:///sha-256;WaH7VS7DjyMynAo_pktJu5KWGbpIvCniqYYRW_i3hIs",
+          "component": {
+            "profile": "org.emsenn.rmn.hierarchical-circuit.v3",
+            "law": "ni:///sha-256;z2QA5oXKdpIAucWoB6s5S2P2pIEPp7P-uU1wPlBdeF4",
+            "ports": [
+              { "name": "request", "direction": "input", "predicate": "ni:///sha-256;_Y3q57_v-c81_QhF75AkOS1CEVB45Nh2VX90YG_gb6s", "carrier": "ni:///sha-256;GsWa09M_SCIWzIWNDK-48rYEOO-cpZobaxxLRCGXPtQ", "mode": "tensor" },
+              { "name": "receipt", "direction": "output", "predicate": "ni:///sha-256;_Y3q57_v-c81_QhF75AkOS1CEVB45Nh2VX90YG_gb6s", "carrier": "ni:///sha-256;GsWa09M_SCIWzIWNDK-48rYEOO-cpZobaxxLRCGXPtQ", "mode": "tensor" }
+            ],
+            "instances": [],
+            "nets": [],
+            "behavior": { "factors": [{ "inputs": ["request"], "outputs": ["receipt"], "rows": [
+              { "input": [{ "positiveEvidence": false, "negativeEvidence": false }], "output": [{ "positiveEvidence": false, "negativeEvidence": false }] },
+              { "input": [{ "positiveEvidence": true, "negativeEvidence": false }], "output": [{ "positiveEvidence": true, "negativeEvidence": false }] },
+              { "input": [{ "positiveEvidence": false, "negativeEvidence": true }], "output": [{ "positiveEvidence": false, "negativeEvidence": true }] },
+              { "input": [{ "positiveEvidence": true, "negativeEvidence": true }], "output": [{ "positiveEvidence": true, "negativeEvidence": true }] }
+            ] }] }
+          }
+        }
+      }
+    ],
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {},
+  "securityRequirements": [],
+  "defaultInputModes": ["application/rmn+cbor"],
+  "defaultOutputModes": ["application/rmn+cbor"],
+  "skills": [
+    {
+      "id": "rmn-echo",
+      "name": "RMN echo",
+      "description": "Echo one canonical RMN operation for transport conformance.",
+      "tags": ["rmn", "conformance"],
+      "examples": [],
+      "inputModes": ["application/rmn+cbor"],
+      "outputModes": ["application/rmn+cbor"],
+      "securityRequirements": []
+    }
+  ],
+  "signatures": []
+}

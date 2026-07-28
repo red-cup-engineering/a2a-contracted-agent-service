@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:emsenn:schema:r2-task-custody-contract-binding:v1",
+  "title": "A2A durable task to R2 custody contract binding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "contract", "executable", "providerProgram", "usageSnapshotPath", "customer", "caller"],
+  "properties": {
+    "type": { "const": "R2TaskCustodyContractBinding" },
+    "contract": { "const": "cloudflare-r2-object-custody/v1" },
+    "executable": { "description": "Absolute executable path; no shell interpretation occurs.", "type": "string", "pattern": "^/" },
+    "providerProgram": { "description": "Absolute path to the resource broker's contract-cloudflare-r2-object-custody.js entry point.", "type": "string", "pattern": "^/" },
+    "usageSnapshotPath": { "description": "Absolute path to a fresh CloudflareR2AccountWideBillableUsageSnapshot JSON carrier; it contains no credential.", "type": "string", "pattern": "^/" },
+    "customer": { "type": "string", "pattern": "^urn:ame:[a-z0-9][a-z0-9.-]*$" },
+    "caller": { "type": "string", "pattern": "^eip155:[1-9][0-9]*:0x[0-9a-fA-F]{40}$" }
+  }
+}

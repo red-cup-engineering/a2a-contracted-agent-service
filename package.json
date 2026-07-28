@@ -1,0 +1,68 @@
+{
+  "name": "@red-cup-engineering/a2a-contracted-agent-service",
+  "version": "2.0.4",
+  "type": "module",
+  "exports": {
+    ".": "./src/serve-contracted-agent.mjs",
+    "./durable-task-store": "./src/durable-task-store.mjs",
+    "./durable-push-notifications": "./src/durable-push-notifications.mjs"
+  },
+  "bin": {
+    "serve-contracted-a2a-agent": "./src/serve-contracted-agent.mjs"
+  },
+  "scripts": {
+    "check": "node --check src/serve-contracted-agent.mjs && node --check src/durable-task-store.mjs && node --check src/durable-push-notifications.mjs && node --check test/a2a-provider.test.mjs && node --check test/gemini-contracted-agent.test.mjs && node --check test/fixtures/slow-child-rmn.mjs",
+    "test": "node --test test/a2a-provider.test.mjs test/gemini-contracted-agent.test.mjs",
+    "verify": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@a2a-js/sdk": "1.0.0-beta.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
+    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/a2a-coordination-state-custody-service": "1.0.4",
+    "@red-cup-engineering/a2a-task-state-custody-service": "1.0.5",
+    "express": "5.1.0",
+    "jose": "6.2.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/red-cup-engineering/red-cup-engineering.git",
+    "directory": "services/web-services-section/services/a2a-services-section/services/a2a-contracted-agent-service"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "x-semiotic-voxel": {
+    "profile": "org.harmonious-union.semiotic-voxel.v1",
+    "owner": "red-cup-engineering",
+    "kind": "capability-cell",
+    "actor": "urn:ame:a2a-contracted-agent-service",
+    "operations": [
+      "serve-contracted-a2a-agent"
+    ],
+    "capabilities": [
+      {
+        "capability": "a2a-contracted-agent-service",
+        "faces": [
+          "serve-contracted-a2a-agent"
+        ]
+      }
+    ],
+    "package": "@red-cup-engineering/a2a-contracted-agent-service"
+  },
+  "x-agentic-metro-enterprise": {
+    "node-id": "a2a-contracted-agent-service",
+    "organizational-kind": "public-protocol-provider",
+    "operation-catalog": {
+      "serve-contracted-a2a-agent": {
+        "law": "content/contracts/serves-contracted-rmn-agent.rml",
+        "protocol": "A2A 1.0",
+        "taskState": "@red-cup-engineering/a2a-task-state-custody-service",
+        "legacyCompatibility": false
+      }
+    }
+  }
+}
