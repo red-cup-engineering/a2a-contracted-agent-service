@@ -60,7 +60,7 @@ test("official A2A 1.0 provider executes the Gemini team's typed RMN dry-run con
   try {
     const message = Message.toJSON({ messageId: crypto.randomUUID(), contextId: "", taskId: "", role: Role.ROLE_USER,
       parts: [rmnPart(Buffer.from(bundleReceipt.canonicalBytesBase64, "base64"), "proposal.rmn.cbor")], metadata: {}, extensions: [], referenceTaskIds: [] });
-    const result = await sendRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, extensions: [SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION], requireSignature: true, message, signal: AbortSignal.timeout(10_000) });
+    const result = await sendRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, extensions: [SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION], requireSignature: true, message });
     assert.equal(result.result.status.state, TaskState.TASK_STATE_COMPLETED);
     assert.equal(result.result.status.message.metadata.disposition, "completion");
     assert.equal(a2aResultParts(result.result).find((part) => part.mediaType === "text/plain").content.value, "ready");

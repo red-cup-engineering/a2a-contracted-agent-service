@@ -1,6 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { Role, Task, TaskState } from "@a2a-js/sdk";
-import { a2aTaskStateRecord } from "@red-cup-engineering/a2a-task-state-custody-service";
 
 const TERMINAL = new Set([
   TaskState.TASK_STATE_COMPLETED,
@@ -10,6 +9,12 @@ const TERMINAL = new Set([
   TaskState.TASK_STATE_REJECTED,
   TaskState.TASK_STATE_AUTH_REQUIRED,
 ]);
+function canonicalJson(value) { if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`; if (value !== null && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`; return JSON.stringify(value); }
+function a2aTaskStateRecord(envelope) {
+  const taskId = envelope?.task?.id, tenant = envelope?.tenant ?? "";
+  if (envelope?.protocol !== "A2A" || envelope.protocolVersion !== "1.0" || typeof taskId !== "string" || taskId === "") throw new Error("A2A task-state envelope does not match its tenant and task coordinate");
+  return Object.freeze({ taskId, tenant, sha256: createHash("sha256").update(`${canonicalJson(envelope)}\n`, "utf8").digest("hex"), envelope: structuredClone(envelope) });
+}
 
 function project(task, historyLength, includeArtifacts = true) {
   const copy = structuredClone(task);

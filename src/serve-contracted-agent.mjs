@@ -12,8 +12,6 @@ import { UserBuilder, agentCardHandler, jsonRpcHandler, restHandler } from "@a2a
 import { extractRmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { DurableA2aTaskStore } from "./durable-task-store.mjs";
 import { DurableDependencyEventInbox, DurablePushNotificationSender, DurablePushNotificationStore } from "./durable-push-notifications.mjs";
-import { createA2aTaskStateCustodyFromEnvironment } from "@red-cup-engineering/a2a-task-state-custody-service";
-import { createA2aCoordinationStateCustodyFromEnvironment } from "@red-cup-engineering/a2a-coordination-state-custody-service";
 
 function values(flag) {
   const result = [];
@@ -332,7 +330,6 @@ export async function serveContractedAgent(options = {}) {
   const command = options.executor ?? value("--executor");
   const args = options.executorArgs ?? values("--executor-arg");
   const retiredExecutionBounds = [
-    ["timeoutMs", "--timeout-ms"],
     ["maxBytes", "--max-bytes"],
     ["requestMaxBytes", "--request-max-bytes"],
   ];
@@ -341,10 +338,12 @@ export async function serveContractedAgent(options = {}) {
       throw new Error(`${option} is retired: contracted tasks remain durable until completion, provider refusal, or explicit A2A customer cancellation`);
     }
   }
-  const taskStore = options.taskStore ?? new DurableA2aTaskStore(
-    options.taskSource ?? createA2aTaskStateCustodyFromEnvironment(options.environment ?? process.env),
-  );
-  const coordinationSource = options.coordinationSource ?? createA2aCoordinationStateCustodyFromEnvironment(options.environment ?? process.env);
+  // Thin A2A state is chain-carried. The membrane supplies the on-chain
+  // sources; this process deliberately has no R2 state fallback.
+  if (!options.taskStore && !options.taskSource) throw new Error("contracted A2A agent requires a membrane-provided on-chain task source");
+  if (!options.coordinationSource) throw new Error("contracted A2A agent requires a membrane-provided on-chain coordination source");
+  const taskStore = options.taskStore ?? new DurableA2aTaskStore(options.taskSource);
+  const coordinationSource = options.coordinationSource;
   const pushNotificationStore = options.pushNotificationStore ?? new DurablePushNotificationStore(coordinationSource);
   const pushNotificationSender = options.pushNotificationSender ?? new DurablePushNotificationSender(pushNotificationStore, coordinationSource);
   const dependencyEventInbox = options.dependencyEventInbox ?? new DurableDependencyEventInbox(coordinationSource);

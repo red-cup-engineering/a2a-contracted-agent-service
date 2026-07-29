@@ -21,8 +21,6 @@
     "@red-cup-engineering/a2a-agent-card-key-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
-    "@red-cup-engineering/a2a-coordination-state-custody-service": "1.0.4",
-    "@red-cup-engineering/a2a-task-state-custody-service": "1.0.5",
     "express": "5.1.0",
     "jose": "6.2.3"
   },

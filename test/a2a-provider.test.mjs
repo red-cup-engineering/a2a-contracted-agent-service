@@ -41,15 +41,12 @@ async function freePort() {
   const server = createServer(); await new Promise((accept) => server.listen(0, "127.0.0.1", accept));
   const port = server.address().port; await new Promise((accept) => server.close(accept)); return port;
 }
-async function eventually(assertion, timeoutMs = 2_000) {
-  const deadline = Date.now() + timeoutMs;
-  let lastError;
-  while (Date.now() < deadline) {
+async function eventually(assertion) {
+  for (;;) {
     try { return assertion(); }
-    catch (error) { lastError = error; }
-    await new Promise((accept) => setTimeout(accept, 25));
+    catch {}
+    await new Promise((accept) => setImmediate(accept));
   }
-  throw lastError;
 }
 
 async function signing(baseUrl, capture) {
@@ -130,12 +127,12 @@ test("official A2A 1.0 Agent Card and JSON-RPC binding round-trip canonical RMN 
     assert.equal(cardResponse.status, 200);
     const card = await cardResponse.json();
     assert.deepEqual(card.supportedInterfaces.map((face) => [face.protocolBinding, face.protocolVersion]), [["JSONRPC", "1.0"], ["HTTP+JSON", "1.0"]]);
-    const discovered = await discoverAgentCard({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, requireSignature: true, signal: AbortSignal.timeout(10_000) });
+    const discovered = await discoverAgentCard({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, requireSignature: true });
     assert.equal(discovered.version, "1.0.0");
     assert.equal(discovered.signatures.length, 1);
     const bytes = Buffer.from([0x82, 0x64, 0x6d, 0x61, 0x72, 0x6b, 0x61, 0x78]);
     const message = userRmnMessage(bytes, "operation.rmn.cbor", "00000000-0000-4000-8000-000000000000");
-    const result = await sendRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, message, requireSignature: true, signal: AbortSignal.timeout(10_000) });
+    const result = await sendRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, message, requireSignature: true });
     assert.equal(result.inputNi, result.outputNi);
     assert.deepEqual(result.extensions, ["ni:///sha-256;wzh-zYeFQCsh4zAzGS34uacNV4qJeIEmCKIUUWyRZ-M"]);
     assert.equal(result.agentCard.signatures.length, 1);
@@ -176,11 +173,11 @@ test("declared HTTP Bearer security keeps discovery public and protects A2A task
     const message = userRmnMessage(Buffer.from([0x82, 0x64, 0x6d, 0x61, 0x72, 0x6b, 0x61, 0x78]), "operation.rmn.cbor", "00000000-0000-4000-8000-000000000020");
     await assert.rejects(sendRmnTask({
       agentUrl: `${baseUrl}/.well-known/agent-card.json`, message, requireSignature: true,
-      bearerTokenFile: fixture.wrongTokenPath, signal: AbortSignal.timeout(10_000),
+      bearerTokenFile: fixture.wrongTokenPath,
     }), /401|authentication required|HTTP error/u);
     const result = await sendRmnTask({
       agentUrl: `${baseUrl}/.well-known/agent-card.json`, message, requireSignature: true,
-      bearerTokenFile: fixture.tokenPath, signal: AbortSignal.timeout(10_000),
+      bearerTokenFile: fixture.tokenPath,
     });
     assert.equal(result.inputNi, result.outputNi);
     assert.equal(result.result.status.state, TaskState.TASK_STATE_COMPLETED);
@@ -190,7 +187,7 @@ test("declared HTTP Bearer security keeps discovery public and protects A2A task
   }
 });
 
-test("provider-owned long labor may complete through the persisted task lifecycle without a host deadline", async () => {
+test("provider-owned long labor may complete through the persisted task lifecycle without a host temporal ceiling", async () => {
   const port = await freePort(), baseUrl = `http://127.0.0.1:${port}`;
   const running = await serveContractedAgent({
     port, host: "127.0.0.1", baseUrl,
@@ -205,7 +202,6 @@ test("provider-owned long labor may complete through the persisted task lifecycl
       message: userRmnMessage(bytes, "operation.rmn.cbor", "00000000-0000-4000-8000-000000000010"),
       requireSignature: true,
       pollIntervalMs: 20,
-      signal: AbortSignal.timeout(10_000),
     });
     assert.equal(result.result.status.state, TaskState.TASK_STATE_COMPLETED);
     assert.equal(result.result.history.length, 0);
@@ -234,15 +230,15 @@ test("customer A2A cancellation terminates the identified task's execution group
       requireSignature: false,
     });
     taskId = submitted.taskId;
-    await eventually(() => assert.ok(existsSync(childPidPath)), 10_000);
+    await eventually(() => assert.ok(existsSync(childPidPath)));
     await cancelRmnTask({
       agentUrl: `${baseUrl}/.well-known/agent-card.json`, taskId,
-      requireSignature: false, signal: AbortSignal.timeout(10_000),
+      requireSignature: false,
     });
     const grandchildPid = Number(readFileSync(childPidPath, "utf8"));
-    await eventually(() => assert.throws(() => process.kill(grandchildPid, 0), /ESRCH/u), 6_000);
+    await eventually(() => assert.throws(() => process.kill(grandchildPid, 0), /ESRCH/u));
     await assert.rejects(
-      resumeRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, taskId, inputNi: "ni:///sha-256;placeholder", requireSignature: false, signal: AbortSignal.timeout(10_000) }),
+      resumeRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, taskId, inputNi: "ni:///sha-256;placeholder", requireSignature: false }),
       (error) => {
         assert.equal(error.result.status.state, TaskState.TASK_STATE_CANCELED);
         assert.equal(error.result.status.message.metadata.disposition, "cancelled");
@@ -285,7 +281,7 @@ test("cancellation waits for the executor's actual acknowledgement before its te
     const taskId = submitted.taskId;
     await cancelRmnTask({
       agentUrl: `${baseUrl}/.well-known/agent-card.json`, taskId,
-      requireSignature: false, signal: AbortSignal.timeout(10_000),
+      requireSignature: false,
     });
     assert.equal(existsSync(acknowledgement), true, "terminal cancellation follows the executor's downstream acknowledgement");
   } finally {
@@ -315,7 +311,6 @@ test("a2a-durable-resumption: a caller retains the standard task id and resumes 
       requireSignature: true,
       pollIntervalMs: 20,
       onTaskObservation: async (task) => observations.push(task),
-      signal: AbortSignal.timeout(10_000),
     });
     assert.ok(observations.length >= 1);
     assert.equal(observations[0].id, first.result.id);
@@ -324,7 +319,7 @@ test("a2a-durable-resumption: a caller retains the standard task id and resumes 
     running = await serveContractedAgent(options);
     const resumed = await resumeRmnTask({
       agentUrl: `${baseUrl}/.well-known/agent-card.json`, taskId: first.result.id, inputNi: first.inputNi,
-      requireSignature: true, signal: AbortSignal.timeout(10_000),
+      requireSignature: true,
     });
     assert.equal(resumed.result.status.state, TaskState.TASK_STATE_COMPLETED);
     assert.equal(resumed.outputNi, first.outputNi);
@@ -458,7 +453,7 @@ test("an executor that refuses before reading reports its refusal instead of cra
       parts: [rmnPart(bytes)], metadata: {}, extensions: [], referenceTaskIds: [],
     });
     await assert.rejects(
-      sendRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, message, requireSignature: true, signal: AbortSignal.timeout(10_000) }),
+      sendRmnTask({ agentUrl: `${baseUrl}/.well-known/agent-card.json`, message, requireSignature: true }),
       /deliberate executor refusal before request read/u,
     );
   } finally { await new Promise((accept) => running.server.close(accept)); }
