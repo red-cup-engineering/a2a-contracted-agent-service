@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     ".": "./src/serve-contracted-agent.mjs",
+    "./signed-agent-card": "./src/signed-agent-card.mjs",
     "./durable-task-store": "./src/durable-task-store.mjs",
     "./durable-push-notifications": "./src/durable-push-notifications.mjs"
   },
@@ -11,7 +12,7 @@
     "serve-contracted-a2a-agent": "./src/serve-contracted-agent.mjs"
   },
   "scripts": {
-    "check": "node --check src/serve-contracted-agent.mjs && node --check src/durable-task-store.mjs && node --check src/durable-push-notifications.mjs && node --check test/a2a-provider.test.mjs && node --check test/gemini-contracted-agent.test.mjs && node --check test/fixtures/slow-child-rmn.mjs",
+    "check": "node --check src/serve-contracted-agent.mjs && node --check src/signed-agent-card.mjs && node --check src/durable-task-store.mjs && node --check src/durable-push-notifications.mjs && node --check test/a2a-provider.test.mjs && node --check test/gemini-contracted-agent.test.mjs && node --check test/fixtures/slow-child-rmn.mjs",
     "test": "node --test test/a2a-provider.test.mjs test/gemini-contracted-agent.test.mjs",
     "verify": "npm run check && npm test"
   },
