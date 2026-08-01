@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -11,6 +10,7 @@ import { serveContractedAgent } from "../src/serve-contracted-agent.mjs";
 import { a2aResultParts, sendRmnTask } from "@red-cup-engineering/a2a-rmn-task-client-service";
 import { rmnPart } from "@red-cup-engineering/a2a-rmn-part-service";
 import { ephemeralAgentCardSigning } from "@red-cup-engineering/a2a-agent-card-key-service/testing";
+import { rawNiUri } from "@red-cup-engineering/rmn-semantic-conformance-die/canonical-cbor";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const TEAM = resolve(ROOT, "../../../../../model-services-section/services/logical-inference-services-section/services/gemini-inference-team");
@@ -25,7 +25,7 @@ const ACCOUNT = JSON.parse(readFileSync(resolve(TEAM, "content/evm/accounts/eip1
 const CUSTOMER_ACCOUNT = "eip155:31337:0x1111111111111111111111111111111111111111";
 const LAW = "ni:///sha-256;h2VIEZwYH__6vRnSgSWYRrFh1AHFcIBFboED8rlsGgo";
 const OPERATION_TYPE = ["product", ["mark"], ["product", ["mark"], ["product", ["mark"], ["mark"]]]];
-const ni = (label) => `ni:///sha-256;${createHash("sha256").update(label).digest("base64url")}`;
+const ni = rawNiUri;
 
 async function freePort() {
   const server = createServer(); await new Promise((accept) => server.listen(0, "127.0.0.1", accept));

@@ -23,7 +23,8 @@
     "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
     "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.1",
     "express": "5.1.0",
-    "jose": "6.2.3"
+    "jose": "6.2.3",
+    "@red-cup-engineering/rmn-semantic-conformance-die": "6.0.1"
   },
   "repository": {
     "type": "git",
