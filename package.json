@@ -6,7 +6,8 @@
     ".": "./src/serve-contracted-agent.mjs",
     "./signed-agent-card": "./src/signed-agent-card.mjs",
     "./durable-task-store": "./src/durable-task-store.mjs",
-    "./durable-push-notifications": "./src/durable-push-notifications.mjs"
+    "./durable-push-notifications": "./src/durable-push-notifications.mjs",
+    "./package.json": "./package.json"
   },
   "bin": {
     "serve-contracted-a2a-agent": "./src/serve-contracted-agent.mjs"
