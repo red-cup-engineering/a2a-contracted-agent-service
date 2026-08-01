@@ -15,11 +15,11 @@ import { ephemeralAgentCardSigning } from "@red-cup-engineering/a2a-agent-card-k
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const TEAM = resolve(ROOT, "../../../../../model-services-section/services/logical-inference-services-section/services/gemini-inference-team");
 const RMN = resolve(ROOT, "../../../../../model-services-section/services/relational-model-services-section/services/relational-model-notation-services-section/services/rmn-conformance-service");
-const RWIL = resolve(RMN, "../rwil-rdf-projection-service");
+const WitnessJournal = resolve(RMN, "../witness-journal-rdf-projection-service");
 const WIT = resolve(RMN, "../wit-transition-assay");
 const { assay, semanticBytes, semanticId } = await import(`${RMN}/src/rmn-core.mjs`);
 const { SOVEREIGN_CIRCUIT_INTERFACE_EXTENSION } = await import(`${RMN}/src/hierarchical-circuit.mjs`);
-const { startRwilProviderProcess } = await import(`${RWIL}/src/test-provider.mjs`);
+const { startWitnessJournalProviderProcess } = await import(`${WitnessJournal}/src/test-provider.mjs`);
 const { startWitTransitionAssayProcess } = await import(`${WIT}/src/test-provider.mjs`);
 const ACCOUNT = JSON.parse(readFileSync(resolve(TEAM, "content/evm/accounts/eip155-31337.json"), "utf8")).account.caip10;
 const CUSTOMER_ACCOUNT = "eip155:31337:0x1111111111111111111111111111111111111111";
@@ -37,7 +37,7 @@ function conform(term, expectedType) {
 }
 
 test("official A2A 1.0 provider executes the Gemini team's typed RMN dry-run contract", async () => {
-  const teamData = mkdtempSync(join(tmpdir(), "a2a-gemini-rwil-"));
+  const teamData = mkdtempSync(join(tmpdir(), "a2a-gemini-witness-journal-"));
   const operation = ["pair", ["mark", "Answer briefly."], ["pair", ["mark", "What is two plus two?"], ["pair", ["mark", "gemini-3.1-flash-lite"], ["mark", "dry-run"]]]];
   const operationReceipt = conform(operation, OPERATION_TYPE);
   const cell = { law: LAW, caller: CUSTOMER_ACCOUNT, provider: ACCOUNT,
@@ -45,10 +45,10 @@ test("official A2A 1.0 provider executes the Gemini team's typed RMN dry-run con
     outcome: { positiveEvidence: false, negativeEvidence: false }, measures: [], parent: null };
   const bundleReceipt = conform(["pair", ["effect", cell], operation], ["product", ["effect"], OPERATION_TYPE]);
   const rmnPort = await freePort(), port = await freePort(), rmnBase = `http://127.0.0.1:${rmnPort}`, baseUrl = `http://127.0.0.1:${port}`;
-  const priorProvider = process.env.RMN_CONFORMANCE_AGENT, priorRwil = process.env.RWIL_RDF_AGENT, priorWit = process.env.WIT_TRANSITION_ASSAY_AGENT, priorTeam = process.env.GEMINI_RWIL_ROOT;
-  const rwil = await startRwilProviderProcess();
-  const wit = await startWitTransitionAssayProcess({ rwilAgentUrl: rwil.agentCardUrl });
-  process.env.RMN_CONFORMANCE_AGENT = `${rmnBase}/.well-known/agent-card.json`; process.env.RWIL_RDF_AGENT = rwil.agentCardUrl; process.env.WIT_TRANSITION_ASSAY_AGENT = wit.agentCardUrl; process.env.GEMINI_RWIL_ROOT = teamData;
+  const priorProvider = process.env.RMN_CONFORMANCE_AGENT, priorWitnessJournal = process.env.WITNESS_JOURNAL_RDF_AGENT, priorWit = process.env.WIT_TRANSITION_ASSAY_AGENT, priorTeam = process.env.GEMINI_WITNESS_JOURNAL_ROOT;
+  const witnessJournal = await startWitnessJournalProviderProcess();
+  const wit = await startWitTransitionAssayProcess({ witnessJournalAgentUrl: witnessJournal.agentCardUrl });
+  process.env.RMN_CONFORMANCE_AGENT = `${rmnBase}/.well-known/agent-card.json`; process.env.WITNESS_JOURNAL_RDF_AGENT = witnessJournal.agentCardUrl; process.env.WIT_TRANSITION_ASSAY_AGENT = wit.agentCardUrl; process.env.GEMINI_WITNESS_JOURNAL_ROOT = teamData;
   const rmnRunning = await serveContractedAgent({ rmnPort, port: rmnPort, host: "127.0.0.1", baseUrl: rmnBase,
     agentCard: join(RMN, "content/agent-cards/rmn-semantic-conformance.json"), executor: process.execPath,
     executorArgs: [join(RMN, "bin/execute-a2a-task.mjs")],
@@ -69,10 +69,10 @@ test("official A2A 1.0 provider executes the Gemini team's typed RMN dry-run con
     await new Promise((accept) => running.server.close(accept));
     await new Promise((accept) => rmnRunning.server.close(accept));
     await wit.close();
-    await rwil.close();
+    await witnessJournal.close();
     if (priorProvider === undefined) delete process.env.RMN_CONFORMANCE_AGENT; else process.env.RMN_CONFORMANCE_AGENT = priorProvider;
-    if (priorRwil === undefined) delete process.env.RWIL_RDF_AGENT; else process.env.RWIL_RDF_AGENT = priorRwil;
+    if (priorWitnessJournal === undefined) delete process.env.WITNESS_JOURNAL_RDF_AGENT; else process.env.WITNESS_JOURNAL_RDF_AGENT = priorWitnessJournal;
     if (priorWit === undefined) delete process.env.WIT_TRANSITION_ASSAY_AGENT; else process.env.WIT_TRANSITION_ASSAY_AGENT = priorWit;
-    if (priorTeam === undefined) delete process.env.GEMINI_RWIL_ROOT; else process.env.GEMINI_RWIL_ROOT = priorTeam;
+    if (priorTeam === undefined) delete process.env.GEMINI_WITNESS_JOURNAL_ROOT; else process.env.GEMINI_WITNESS_JOURNAL_ROOT = priorTeam;
   }
 });

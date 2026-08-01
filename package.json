@@ -1,6 +1,6 @@
 {
   "name": "@red-cup-engineering/a2a-contracted-agent-service",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "type": "module",
   "exports": {
     ".": "./src/serve-contracted-agent.mjs",
@@ -18,10 +18,10 @@
   },
   "dependencies": {
     "@a2a-js/sdk": "1.0.0-beta.0",
-    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.0",
-    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.0",
-    "@red-cup-engineering/a2a-rmn-part-service": "1.0.0",
-    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.0",
+    "@red-cup-engineering/a2a-agent-card-discovery-service": "1.0.1",
+    "@red-cup-engineering/a2a-agent-card-key-service": "1.0.1",
+    "@red-cup-engineering/a2a-rmn-part-service": "1.0.1",
+    "@red-cup-engineering/a2a-rmn-task-client-service": "1.1.1",
     "express": "5.1.0",
     "jose": "6.2.3"
   },
