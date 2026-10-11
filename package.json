@@ -23,7 +23,7 @@
     "@red-cup-engineering/a2a-agent-card-key-service": "workspace:*",
     "@red-cup-engineering/a2a-rmn-part-service": "workspace:*",
     "@red-cup-engineering/a2a-rmn-task-client-service": "workspace:*",
-    "@red-cup-engineering/semantic-content-identify-service": "0.2.2",
+    "@red-cup-engineering/semantic-content-identify-service": "workspace:*",
     "express": "5.1.0",
     "jose": "6.2.3"
   },
